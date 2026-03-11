@@ -220,6 +220,8 @@ void flash_attn_varlen_kernel_impl(
     float sm_scale,
     int buffer_size_per_thread,
     bool causal) {
+  // Ensure BLOCK_M <= BLOCK_N to prevent potential buffer overflows during causal masking
+  static_assert(BLOCK_M <= BLOCK_N);
   // strides
   const int o_strideM = num_heads * head_size_v;
   const int o_strideH = head_size_v;
@@ -256,6 +258,7 @@ void flash_attn_varlen_kernel_impl(
     int tid = get_thread_num();
     // s_i and s_delta: [BLOCK_M, BLOCK_N]
     float* __restrict__ s_i = reinterpret_cast<float*>((char*)(buffer) + tid * buffer_size_per_thread);
+
     scalar_t* __restrict__ s_delta = reinterpret_cast<scalar_t*>(s_i);
 
     // v_prime: [BLOCK_M, head_size_v]

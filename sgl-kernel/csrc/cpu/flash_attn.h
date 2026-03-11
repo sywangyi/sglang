@@ -3,6 +3,17 @@
 #include "vec.h"
 #include "vec_pack.h"
 
+// debug
+template <typename T>
+void print_array(const T* data, int M, int N, int lda) {
+  for (int m = 0; m < M; ++m) {
+    for (int n = 0; n < N; ++n) {
+      std::cout << " " << float(data[m * lda + n]);
+    }
+    std::cout << std::endl;
+  }
+}
+
 template <typename scalar_t>
 inline void fill_stub(scalar_t* __restrict__ out, float val, int size) {
   using Vec = at::vec::Vectorized<scalar_t>;
@@ -104,6 +115,7 @@ struct flash_attn_softmax {
     using Vec = at::vec::Vectorized<float>;
     const Vec scale_vec = Vec(sm_scale);
     float* s_delta = s_i;
+
     for (int row = 0; row < m_size; ++row) {
       // s_i <- s_i * scale
       at::vec::map<float>(

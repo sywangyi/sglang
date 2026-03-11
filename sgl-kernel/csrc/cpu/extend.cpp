@@ -47,6 +47,9 @@ void extend_attention_kernel_impl(
     int max_len_extend,
     int buffer_size_per_thread,
     bool is_prefix_skipped) {
+  // Ensure BLOCK_M <= BLOCK_N to prevent potential buffer overflows during causal masking
+  static_assert(BLOCK_M <= BLOCK_N);
+
   // strides
   const int o_strideM = num_heads * head_size_v;
   const int o_strideH = head_size_v;
